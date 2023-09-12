@@ -14,6 +14,10 @@ class Category(models.Model):
 
 
 class Tasks(models.Model):
+    def __init__(self, *args, **kwargs):
+        super().__init__(args, kwargs)
+        self.user = None
+
     title = models.CharField(max_length=120)
     description = models.TextField(max_length=300)
     assigned_to = models.ManyToManyField(Contacts, related_name="assignee", blank=True)
