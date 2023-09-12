@@ -1,13 +1,15 @@
+from rest_framework.views import APIView
+
 from .models import Tasks
 from .serializers import TasksSerializer
-from rest_framework import viewsets, status
+from rest_framework import status
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from django.db.models import Q
 from django.core.exceptions import PermissionDenied
 
 
-class TasksView(viewsets.ModelViewSet):
+class TasksView(APIView):
     serializer_class = TasksSerializer
     queryset = Tasks.objects.all()
 
