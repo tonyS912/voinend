@@ -27,13 +27,13 @@ class ContactDetailView(APIView):
     permission_classes = [permissions.IsAuthenticated]
     authentication_classes = [TokenAuthentication]
 
-#TODO: hier müssen noch abfangsysteme eingebaut werden mit try, catch und if und else und elif
     def get(self, request, id):
         contact = Contacts.objects.get(id=id)
         serializer_class = ContactsSerializer(contact)
         return Response(serializer_class.data)
 
-    def put(self, request, id):  #alle daten zum ändern nötig auch unveränderte
+    # alle daten zum ändern nötig auch unveränderte
+    def put(self, request, id):
         contact = Contacts.objects.get(id=id)
         serializer_class = ContactsSerializer(contact, data=request.data)
         if serializer_class.is_valid():

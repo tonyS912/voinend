@@ -1,33 +1,45 @@
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework import permissions, status
 
 from .models import Tasks
 from .serializers import TasksSerializer
-from rest_framework import status
-from rest_framework.response import Response
-from django.shortcuts import get_object_or_404
-from django.db.models import Q
-from django.core.exceptions import PermissionDenied
 
 
 class TasksView(APIView):
-    serializer_class = TasksSerializer
-    queryset = Tasks.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
 
-    def get_queryset(self):
-        user = self.request.user
-        return Tasks.objects.filter(Q(assigned_to=user) | Q(user=user))
+    def get(self, request):
+        tasks_items = Tasks.objects.all()
+        serializer_class = TasksSerializer(tasks_items, many=True)
+        return Response(serializer_class.data)
 
-    def update(self, request, *args, **kwargs):
-        tasks_id = kwargs['pk']
-        try:
-            instance = get_object_or_404(Tasks, pk=tasks_id)
-        except Tasks.DoesNotExist:
-            return Response({'error': 'Tasks not found.'}, status=status.HTTP_404_NOT_FOUND)
+    def post(self, request):
+        serializer_class = TasksSerializer(data=self.request.data)
+        serializer_class.is_valid(raise_exception=True)
+        serializer_class.save()
+        return Response(serializer_class.data, status=status.HTTP_201_CREATED)
 
-        if request.user != instance.user and request.user not in instance.assigned_to.all():
-            raise PermissionDenied('You are not authorized to update this task.')
 
-        serializer = self.get_serializer(instance, data=request.data, partial=True)
-        serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
-        return Response(serializer.data)
+class TasksDetailView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+
+    def get(self, request, id):
+        tasks = Tasks.objects.get(id=id)
+        serializer_class = TasksSerializer(tasks)
+        return Response(serializer_class.data)
+
+    def put(self, request, id):
+        tasks = Tasks.objects.get(id=id)
+        serializer_class = TasksSerializer(tasks, data=request.data)
+        if serializer_class.is_valid():
+            serializer_class.save()
+            return Response(serializer_class.data, status=status.HTTP_202_ACCEPTED)
+        return Response(serializer_class.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, id):
+        Tasks.objects.get(id=id).delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
