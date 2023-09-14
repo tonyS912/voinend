@@ -7,7 +7,7 @@ from tasks.views import TasksView, TasksDetailView, CategoryView, CategoryDetail
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('login/', LoginView.as_view()),
+    path('login/', LoginView.as_view(), name="login"),
     path('register/', RegisterView.as_view(), name='auth_register'),
     path('contact/', ContactView.as_view()),
     path('contact/<int:id>/', ContactDetailView.as_view()),
