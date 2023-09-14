@@ -3,8 +3,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import permissions, status
 
-from .models import Tasks
-from .serializers import TasksSerializer
+from .models import Tasks, Category
+from .serializers import TasksSerializer, CategorySerializer
 
 
 class TasksView(APIView):
@@ -42,4 +42,37 @@ class TasksDetailView(APIView):
 
     def delete(self, request, id):
         Tasks.objects.get(id=id).delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class CategoryView(APIView):
+
+    def get(self, request):
+        tasks_items = Category.objects.all()
+        serializer_class = CategorySerializer(tasks_items, many=True)
+        return Response(serializer_class.data)
+
+    def post(self, request):
+        serializer_class = CategorySerializer(data=self.request.data)
+        serializer_class.is_valid(raise_exception=True)
+        serializer_class.save()
+        return Response(serializer_class.data, status=status.HTTP_201_CREATED)
+
+
+class CategoryDetailView(APIView):
+    def get(self, request, id):
+        tasks = Category.objects.get(id=id)
+        serializer_class = CategorySerializer(tasks)
+        return Response(serializer_class.data)
+
+    def put(self, request, id):
+        tasks = Category.objects.get(id=id)
+        serializer_class = CategorySerializer(tasks, data=request.data)
+        if serializer_class.is_valid():
+            serializer_class.save()
+            return Response(serializer_class.data, status=status.HTTP_202_ACCEPTED)
+        return Response(serializer_class.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, id):
+        Category.objects.get(id=id).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)

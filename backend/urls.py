@@ -3,7 +3,7 @@ from django.urls import path
 
 from authentication.views import LoginView, RegisterView
 from contacts.views import ContactView, ContactDetailView
-from tasks.views import TasksView, TasksDetailView
+from tasks.views import TasksView, TasksDetailView, CategoryView, CategoryDetailView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -13,4 +13,6 @@ urlpatterns = [
     path('contact/<int:id>/', ContactDetailView.as_view()),
     path('tasks/', TasksView.as_view()),
     path('tasks/<int:id>/', TasksDetailView.as_view()),
+    path('category/', CategoryView.as_view()),
+    path('category/<int:id>/', CategoryDetailView.as_view()),
 ]
