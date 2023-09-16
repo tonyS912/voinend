@@ -8,6 +8,7 @@ from .serializers import TasksSerializer, CategorySerializer
 
 
 class TasksView(APIView):
+    queryset = Tasks.objects.all()
     permission_classes = [permissions.IsAuthenticated]
     authentication_classes = [TokenAuthentication]
 
@@ -24,6 +25,7 @@ class TasksView(APIView):
 
 
 class TasksDetailView(APIView):
+    queryset = Tasks.objects.all()
     permission_classes = [permissions.IsAuthenticated]
     authentication_classes = [TokenAuthentication]
 
@@ -46,6 +48,7 @@ class TasksDetailView(APIView):
 
 
 class CategoryView(APIView):
+    queryset = Category.objects.all()
 
     def get(self, request):
         tasks_items = Category.objects.all()
@@ -60,6 +63,8 @@ class CategoryView(APIView):
 
 
 class CategoryDetailView(APIView):
+    queryset = Category.objects.all()
+
     def get(self, request, id):
         tasks = Category.objects.get(id=id)
         serializer_class = CategorySerializer(tasks)
