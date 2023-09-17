@@ -13,9 +13,14 @@ from authentication.serializers import RegisterSerializer, LoginSerializer, Curr
 class LoginView(APIView):
     serializer_class = LoginSerializer
 
+    def get(self, request):
+        users = User.objects.all()
+        serializer = LoginSerializer(users, many=True)
+        return Response(serializer.data)
+
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
-        serializer.is_valid()
+        serializer.is_valid(raise_exception=True)
 
         user_data = serializer.validated_data
         user = get_user_model().objects.get(email=user_data['email'])
@@ -27,12 +32,15 @@ class LoginView(APIView):
             'username': user.username
         })
 
-    def current_user_view(self):
-        serializer = CurrentUserSerializer(self.request.user)
-        return Response(serializer.data)
-
 
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     permission_classes = (AllowAny,)
     serializer_class = RegisterSerializer
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def current_user_view(request):
+    serializer = CurrentUserSerializer(request.user)
+    return Response(serializer.data)

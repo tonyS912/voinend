@@ -25,8 +25,8 @@ class AccountTests(APITestCase):
 class LoginTest(TestCase):
     def test_login(self):
         self.client = Client()
-        self.user = User.objects.create_user('test_user', email='test@testomat.com', password='test123!')
-        self.client.login(email='test@testomat.com', password='test123!')
+        self.user = User.objects.create_user('test_user', password='test_user')
+        self.client.login(username='test_user', password='test_user')
 
         response = self.client.get('/login/')
         self.assertEqual(response.status_code, 200)

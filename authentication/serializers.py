@@ -5,6 +5,22 @@ from rest_framework.validators import UniqueValidator
 from django.contrib.auth.password_validation import validate_password
 
 
+def authenticate_by_email(email, password):
+    user = get_user_model()
+    try:
+        user = user.objects.get(email=email)
+        if user.check_password(password):
+            return user
+    except user.DoesNotExist:
+        return None
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'password']
+
+
 class RegisterSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(
         required=True,
@@ -45,6 +61,13 @@ class RegisterSerializer(serializers.ModelSerializer):
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField(required=True)
     password = serializers.CharField(write_only=True, required=True)
+
+    def validate(self, data):
+        user = authenticate_by_email(data["email"], data["password"])
+        if user:
+            if user.is_active:
+                return {'username': user.username, 'email': user.email, 'password': user.password}
+        raise serializers.ValidationError("Incorrect Credentials")
 
 
 class CurrentUserSerializer(serializers.ModelSerializer):
